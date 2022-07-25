@@ -8,6 +8,7 @@ namespace wodat
     {
         public string[] ERROR_RETURN_LIST = { "12505", "12537", "End of file", "01017" };
         public string[] TARGET_UNAVAILABLE = { "target host or object does not exist", "handler with matching protocol stack" };
+        public string[] SYSDBA_CREDS = { "28009", "SYSDBA or SYSOPER" };
         public Arguments cArgs;
         public OracleDatabase(Arguments oArgs)
         {
@@ -123,16 +124,18 @@ namespace wodat
                 {
                   
                     connection.Open();
-                    cArgs.Dbcon = connection;
-          
-                    Console.WriteLine
-                        ("[!] -- DB Connection Success!");
+                    cArgs.Dbcon = connection;         
+                    Console.WriteLine("[!] -- DB Connection Success!");
                     connection.Close();
-                    return true;
+                    return "true";
                 }
                 catch (OracleException ex)
                 {
-                    if (ERROR_RETURN_LIST.Any(ex.Message.ToLowerInvariant().Contains))
+                    if (SYSDBA_CREDS.Any(ex.Message.ToLowerInvariant().Contains))
+                    {
+                        return "28009";
+                    }
+                    else if (ERROR_RETURN_LIST.Any(ex.Message.ToLowerInvariant().Contains))
                         {
                         return ex.Message.ToString();
                     }
@@ -143,7 +146,7 @@ namespace wodat
                     else
                     {
                         Console.WriteLine(ex.ToString());
-                        return false;
+                        return "false";
                        // Console.ReadLine();
                        // throw;
                     }

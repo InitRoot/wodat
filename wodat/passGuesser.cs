@@ -46,14 +46,24 @@ namespace wodat
 				return success;
 			}
 			else if (response.Contains("rue"))
-			{			
-					success = true;
-					Console.ForegroundColor = ConsoleColor.Green;
-					Console.WriteLine("\t Testing: " + cArgs.Username + ":" + cArgs.Password + " \t State: " + response);
-					validsList.Add(cArgs.Username + ":" + cArgs.Password);
-					Console.ResetColor();
-					return success;
+			{
+				success = true;
+				Console.ForegroundColor = ConsoleColor.Green;
+				Console.WriteLine("\t Testing: " + cArgs.Username + ":" + cArgs.Password + " \t State: " + "Success!");
+				validsList.Add(cArgs.Username + ":" + cArgs.Password);
+				Console.ResetColor();
+				return success;
 			}
+			else if (response.Contains("28009"))
+			{
+				success = true;
+				Console.ForegroundColor = ConsoleColor.Yellow;
+				Console.WriteLine("\t Testing: " + cArgs.Username + ":" + cArgs.Password + " \t State: " + "Potential SYSDBA or SYSOPER account found, manually confirm..");
+				validsList.Add(cArgs.Username + ":" + cArgs.Password);
+				Console.ResetColor();
+				return success;
+			}
+
 			else { Console.WriteLine("\t Testing: " + cArgs.Username + ":" + cArgs.Password + " \t State: " + response); return success; }
 
 		}
@@ -85,7 +95,7 @@ namespace wodat
 					if (validsList.Count > 0)
 					{
 						Console.WriteLine("[!] -- Found [" + validsList.Count() + "] set of credentials!" );
-						Console.WriteLine(validsList);
+						validsList.ForEach(Console.WriteLine);
 					}
 				}
 				else if ((optType == "B") && (cArgs.Password != null))
@@ -103,7 +113,7 @@ namespace wodat
 					if (validsList.Count > 0)
 					{
 						Console.WriteLine("[!] -- Found [" + validsList.Count() + "] set of credentials!");
-						Console.WriteLine(validsList);
+						validsList.ForEach(Console.WriteLine);
 					}
 
 
@@ -123,7 +133,7 @@ namespace wodat
 					if (validsList.Count > 0)
 					{
 						Console.WriteLine("[!] -- Found [" + validsList.Count() + "] set of credentials!");
-						Console.WriteLine(validsList);
+						validsList.ForEach(Console.WriteLine);
 					}
 
 

@@ -21,7 +21,10 @@ namespace wodat
 			OracleDatabase nDB = new OracleDatabase(cArgs);
 			response = (String)nDB.connectDB();
 			if (response.Contains("rue"))
-			{	return success;}
+			{	
+				success = true; 
+				return success; 
+			}
 			else { return success; }
         }
 	
