@@ -3,7 +3,7 @@ Windows Oracle Database Attack Tool
 
 ![Follow on Twitter](https://img.shields.io/twitter/follow/initroott?label=Follow%20&style=social)
 ![GitHub last commit](https://img.shields.io/github/last-commit/initroot/wodat)
-![GitHub stars](https://img.shields.io/github/stars/InitRoot/wodat/)
+
  
 Simple port of the popular  Oracle Database Attack Tool (ODAT) (https://github.com/quentinhardy/odat) to C# .Net Framework. 
 Credit to https://github.com/quentinhardy/odat as lots of the functionality are ported from his code.
