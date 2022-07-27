@@ -121,6 +121,7 @@
     <Compile Include="srvGuesser.cs" />
     <Compile Include="testConnection.cs" />
     <Compile Include="TNS.cs" />
+    <Compile Include="reconTool.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

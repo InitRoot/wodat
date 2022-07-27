@@ -76,7 +76,7 @@ namespace wodat
             */
             if (args.Length < 1)
             {
-                Console.WriteLine("[!] -- The following arguments are required:  \n COMMAND (ALL,BRUTECRED,BRUTESID,BRUTESRV,TEST) \n -server:XXX.XXX.XXX.XXX -port:1520 \n -sid:OR -srv:OR\n -user:Peter -pass:Password");
+                   Console.WriteLine("[!] -- The following arguments are required:  \n COMMAND (ALL,BRUTECRED,BRUTESID,BRUTESRV,TEST,RECON,DISC) \n -server:XXX.XXX.XXX.XXX -port:1520 \n -sid:OR -srv:OR\n -user:Peter -pass:Password");
             }
 
             else
@@ -85,7 +85,7 @@ namespace wodat
                 Arguments nArgs = new Arguments();
                 if (arguments.Parameters.ContainsKey("help"))
                 {
-                    Console.WriteLine("[!] -- The following arguments are required:  \n COMMAND (ALL,BRUTECRED,BRUTESID,BRUTESRV,TEST) \n -server:XXX.XXX.XXX.XXX -port:1520 \n -sid:OR -srv:OR\n -user:Peter -pass:Password");
+                    Console.WriteLine("[!] -- The following arguments are required:  \n COMMAND (ALL,BRUTECRED,BRUTESID,BRUTESRV,TEST,RECON,DISC) \n -server:XXX.XXX.XXX.XXX -port:1520 \n -sid:OR -srv:OR\n -user:Peter -pass:Password");
                 }
                 // Let's make sure that server and port and minimal has been provided
                 else if (arguments.Parameters.ContainsKey("server") && arguments.Parameters.ContainsKey("port"))
@@ -122,6 +122,25 @@ namespace wodat
                             Console.WriteLine("[!] -- RECON has not been implemented yet!");
                         }
 
+                    }
+                    else if (arguments.Command == "DISC")
+                    {
+                            // TODO: validate the data provided
+                                Console.WriteLine("[?] -- Please provide file with targets or input network range: ");
+                                Console.Write("> ");
+                                String targRecon = Console.ReadLine();
+                                targRecon = targRecon.Trim(new Char[] { '"', '*', (char)39 });
+                                if (targRecon != null)
+                                {
+                                    reconTool rto = new reconTool(nArgs, targRecon);
+                                    rto.runReconTool();
+                                    Console.WriteLine("[!] -- DONE");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("[x] -- File path not provided or file doesn't exist or network range not correct! Exiting...");
+
+                                }
                     }
                     else if (arguments.Command == "BRUTECRED")
                     {
@@ -219,7 +238,6 @@ namespace wodat
                         }
 
                     }
-
                     else if (arguments.Command == "TEST")
                     {
                         if (arguments.Parameters.ContainsKey("user") && arguments.Parameters.ContainsKey("pass") && (arguments.Parameters.ContainsKey("sid") || arguments.Parameters.ContainsKey("srv")))
@@ -253,8 +271,8 @@ namespace wodat
                     }
                     else
                     {
-                        Console.WriteLine("[x] -- You have not entered any command!");
-                        Console.WriteLine("[!] -- The following arguments are required:  \n COMMAND (ALL,BRUTECRED,BRUTESID,BRUTESRV,TEST) \n -server:XXX.XXX.XXX.XXX -port:1520 \n -sid:OR -srv:OR\n -user:Peter -pass:Password");
+                    Console.WriteLine("[x] -- You have not entered any command!");
+                    Console.WriteLine("[!] -- The following arguments are required:  \n COMMAND (ALL,BRUTECRED,BRUTESID,BRUTESRV,TEST,RECON,DISC) \n -server:XXX.XXX.XXX.XXX -port:1520 \n -sid:OR -srv:OR\n -user:Peter -pass:Password");
 
                     }
 
@@ -263,7 +281,7 @@ namespace wodat
                 else
                 {
 
-                    Console.WriteLine("[!] -- The following arguments are required:  \n COMMAND (ALL,BRUTECRED,BRUTESID,BRUTESRV,TEST) \n -server:XXX.XXX.XXX.XXX -port:1520 \n -sid:OR -srv:OR\n -user:Peter -pass:Password");
+                    Console.WriteLine("[!] -- The following arguments are required:  \n COMMAND (ALL,BRUTECRED,BRUTESID,BRUTESRV,TEST,RECON,DISC) \n -server:XXX.XXX.XXX.XXX -port:1520 \n -sid:OR -srv:OR\n -user:Peter -pass:Password");
                 }
             }
 
