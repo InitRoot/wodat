@@ -162,6 +162,7 @@ namespace wodat
            Sends a connection with an invalid login, password and SID. If TNS listener is working, the TNS listener
            should returns an error with the SID. Ib this case, the TNS listener is working. Otherwise, TNS does not work well.
         */
+        
 
         public bool isWorkingTNSList()
         {
