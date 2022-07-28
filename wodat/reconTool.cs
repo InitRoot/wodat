@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,7 +36,7 @@ namespace wodat
 		*/
 		public void loadFromFile()
 		{
-			comboList = (System.IO.File.ReadAllLines(fileName)).Distinct().ToArray();
+			comboList = (System.IO.File.ReadAllLines(targRecon)).Distinct().ToArray();
 		}
 
         /*
@@ -41,12 +44,12 @@ namespace wodat
 	        Use server and port of args only for testing.
             TODO: Cleanup the exception handling
         */
-        public static bool checkListener(Arguments nArgs)
+        public bool checkListener(Arguments cArgs)
         {
             var statusWorking = false;
             Socket socket;
-            IPAddress test1 = IPAddress.Parse(nArgs.ServerIP);
-            IPEndPoint ipe = new IPEndPoint(test1, nArgs.Port);
+            IPAddress test1 = IPAddress.Parse(cArgs.ServerIP);
+            IPEndPoint ipe = new IPEndPoint(test1, cArgs.Port);
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
@@ -54,85 +57,79 @@ namespace wodat
             }
             catch (ArgumentNullException ae)
             {
-                Console.WriteLine("[x] -- ERROR ArgumentNullException : {0}", ae.ToString());
+                //Console.WriteLine("[x] -- ERROR ArgumentNullException : {0}", ae.ToString());
                 throw;
             }
             catch (SocketException se)
             {
-                Console.WriteLine("[x] -- ERROR SocketException : {0}", se.ToString());
+                //Console.WriteLine("[x] -- ERROR SocketException : {0}", se.ToString());
                 throw;
             }
             catch (Exception e)
             {
-                Console.WriteLine("[x] -- ERROR Unexpected exception : {0}", e.ToString());
+                //Console.WriteLine("[x] -- ERROR Unexpected exception : {0}", e.ToString());
                 throw;
             }
             socket.Close();
-            Console.WriteLine("[!] -- Socket connection established to target");
-            OracleDatabase oDB = new OracleDatabase(nArgs);
+            //Console.WriteLine("[!] -- Socket connection established to target");
+            OracleDatabase oDB = new OracleDatabase(cArgs);
             statusWorking = oDB.isWorkingTNSList();
 
             if (statusWorking == false)
-            {
-                Console.WriteLine("[x] -- ERROR TNS listener is NOT well configured. Exiting...");
+            {        
                 return false;
 
             }
             else
-                Console.WriteLine("[!] -- SUCCESS Working TNS listener. Continue...");
-                return true;
+				Console.ForegroundColor = ConsoleColor.Green;
+				string targ1 = cArgs.ServerIP + ":" + Convert.ToString(cArgs.Port);
+				Console.WriteLine("\t Found valid target: " + targ1);
+				validsList.Add(targ1);
+				Console.ResetColor();
+				return true;
 
         }
-		public bool reconTarget()
-		{
-				Thread.Sleep(2000);
-				var response = "";
-				bool success = false;
-				OracleDatabase nDB = new OracleDatabase(cArgs);
-				cArgs.Username = "POIOPI";
-				cArgs.Password = "SDFEWRTER";
-				nDB.GenerateConnectionString();
-				response = (String)nDB.connectDB();
-				if (response.Contains("TARGET_UNAVAILABLE"))
-				{
-					Console.WriteLine("\n [x] -- TARGET_UNAVAILABLE You might want to cancel CTRL + C..");
-					return success;
-				}
-				else if (NO_GOOD_SID_STRING_LIST.Any(response.ToLowerInvariant().Contains))
-				{
-					success = true;
-					return success;
-				}
-				else
-				{
-					success = true;
-					Console.ForegroundColor = ConsoleColor.Green;
-					Console.WriteLine("\t Found potential valid SID: " + cArgs.SID + " \t State: " + response);
-					validsList.Add(cArgs.SID);
-					Console.ResetColor();
-					return success;
-				}
-		}
+
 
 		public void runReconTool()
         {
             if (targRecon.Contains("\\") && File.Exists(targRecon))
             {
+				loadFromFile();
+				Console.WriteLine("[!] -- Now attempting to discover valid TSN listeners against [" + comboList.Count() + "] targets loaded from file.");
+				foreach (string combo in comboList)
+				{
+					try
+					{
+						//wrap in try catch for in case something is off with the target provided
+						if (combo.Contains(","))
+						{
+							cArgs.ServerIP = combo.Split(',')[0];
+							cArgs.Port = Convert.ToInt32(combo.Split(',')[1]);
+							checkListener(cArgs);
 
-            }
+						}
+						else
+						{
+							cArgs.ServerIP = combo.Split(',')[0];
+							cArgs.Port = 1521; //default port
+							checkListener(cArgs);
+						}
+						}
+					catch
+					{
+
+					}
+				}
+
+			}
             else if ()
             {
                 IPAddress ip;
                 bool b = IPAddress.TryParse(targRecon,out ip);
 
             }
-					loadFromFile();
-					Console.WriteLine("[!] -- Now attempting to connect using [" + comboList.Count() + "] unique SIDs...");
-					foreach (string combo in comboList)
-					{
-						cArgs.SID = combo.ToUpperInvariant();
-						TestSID(false);
-					}
+					
 
 					if (validsList.Count > 0)
 					{
