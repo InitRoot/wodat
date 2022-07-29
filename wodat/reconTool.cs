@@ -17,6 +17,7 @@ namespace wodat
         public Arguments cArgs;
 		public String targRecon;
 		public string[] comboList;
+		int tested = 0;
 		public List<string> validsList = new List<string>();
 
 
@@ -48,6 +49,7 @@ namespace wodat
         */
         public void checkListener(Arguments cArgs)
         {
+			tested = tested + 1;
 			//Console.WriteLine(cArgs.ServerIP);	
             var statusWorking = false;
             Socket socket;
@@ -88,7 +90,8 @@ namespace wodat
 					validsList.Add(targ1);
 					Console.ResetColor();
 					socket.Close();
-					
+					Console.WriteLine("[!] -- Targets tested: " + tested.ToString());
+
 				}
 
 
@@ -135,10 +138,12 @@ namespace wodat
 			}
             else
             {
+
 				try
 				{
 						IPRange range;
 						range = new IPRange(targRecon);
+					Console.WriteLine("[!] -- Now attempting to discover valid TSN listeners against [" + range.GetAllIP().Count() + "] targets.");
 					Parallel.ForEach(range.GetAllIP(), ipa => {
 						try
 						{
@@ -146,7 +151,8 @@ namespace wodat
 							cArgs.Port = 1521; //default port
 							checkListener(cArgs);
 						}
-						catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+						catch (Exception ex) { //Console.WriteLine(ex.ToString());
+                                               }
 
 					});
 
@@ -155,7 +161,7 @@ namespace wodat
 				catch (Exception ex)
 				{
 					
-					Console.WriteLine("[x] -- Error encountered, please ensure IP range is provided correctly e.g. 192.168.1.0/24!");
+					Console.WriteLine("[x] -- Error encountered, please ensure IP range is provided correctly e.g. 192.168.1.0/24! or file path is correct.");
 				}
 
 
