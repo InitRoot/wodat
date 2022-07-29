@@ -39,20 +39,30 @@ namespace wodat
                 Console.WriteLine("[x] -- ERROR Unexpected exception : {0}", e.ToString());
                 throw;
             }
-            socket.Close();
-            Console.WriteLine("[!] -- Socket connection established to target");
-            OracleDatabase oDB = new OracleDatabase(nArgs);
-            statusWorking = oDB.isWorkingTNSList();
 
-            if (statusWorking == false)
+            if (socket.Connected)
             {
-                Console.WriteLine("[x] -- ERROR TNS listener is NOT well configured. Exiting...");
-                return false;
+                socket.Close();
+                Console.WriteLine("[!] -- Socket connection established to target");
+                OracleDatabase oDB = new OracleDatabase(nArgs);
+                statusWorking = oDB.isWorkingTNSList();
+
+                if (statusWorking == false)
+                {
+                    Console.WriteLine("[x] -- ERROR TNS listener is NOT well configured. Exiting...");
+                    return false;
+
+                }
+                else
+                    Console.WriteLine("[!] -- SUCCESS Working TNS listener. Continue...");
+                return true;
 
             }
             else
-                Console.WriteLine("[!] -- SUCCESS Working TNS listener. Continue...");
-                return true;
+            {
+                return false;
+            }
+
 
         }
 
@@ -122,25 +132,6 @@ namespace wodat
                             Console.WriteLine("[!] -- RECON has not been implemented yet!");
                         }
 
-                    }
-                    else if (arguments.Command == "DISC")
-                    {
-                            // TODO: validate the data provided
-                                Console.WriteLine("[?] -- Please provide file with targets or input network range: ");
-                                Console.Write("> ");
-                                String targRecon = Console.ReadLine();
-                                targRecon = targRecon.Trim(new Char[] { '"', '*', (char)39 });
-                                if (targRecon != null)
-                                {
-                                    reconTool rto = new reconTool(nArgs, targRecon);
-                                    rto.runReconTool();
-                                    Console.WriteLine("[!] -- DONE");
-                                }
-                                else
-                                {
-                                    Console.WriteLine("[x] -- File path not provided or file doesn't exist or network range not correct! Exiting...");
-
-                                }
                     }
                     else if (arguments.Command == "BRUTECRED")
                     {
@@ -277,6 +268,26 @@ namespace wodat
                     }
 
 
+                }
+               //discovery module doesn't need any parameters only the command
+                else if (arguments.Command == "DISC")
+                {
+                    // TODO: validate the data provided
+                    Console.WriteLine("[?] -- Please provide file with targets or input network range: ");
+                    Console.Write("> ");
+                    String targRecon = Console.ReadLine();
+                    targRecon = targRecon.Trim(new Char[] { '"', '*', (char)39 });
+                    if (targRecon != null)
+                    {
+                        reconTool rto = new reconTool(nArgs, targRecon);
+                        rto.runReconTool();
+                        Console.WriteLine("[!] -- DONE");
+                    }
+                    else
+                    {
+                        Console.WriteLine("[x] -- File path not provided or file doesn't exist or network range not correct! Exiting...");
+
+                    }
                 }
                 else
                 {

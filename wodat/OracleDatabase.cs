@@ -6,7 +6,7 @@ namespace wodat
 {
     public class OracleDatabase
     {
-        public string[] ERROR_RETURN_LIST = { "12505", "12537", "End of file", "01017" };
+        public string[] ERROR_RETURN_LIST = { "12505", "12537", "End of file", "01017","12533" };
         public string[] TARGET_UNAVAILABLE = { "target host or object does not exist", "handler with matching protocol stack" };
         public string[] SYSDBA_CREDS = { "28009", "SYSDBA or SYSOPER" };
         public Arguments cArgs;
@@ -179,6 +179,33 @@ namespace wodat
                 {
                     workingTNS = true;
                 }
+            else
+            {
+                Console.WriteLine(status.ToString());
+            }
+
+            cArgs.SID = lastSID;
+            cArgs.ServiceName = lastServiceName;
+
+            return workingTNS;
+
+        }
+
+        public bool reconWorkingTNSList()
+        {
+            bool workingTNS = false;
+            var lastServiceName = cArgs.ServiceName;
+            cArgs.ServiceName = null;
+            var lastSID = cArgs.SID;
+            cArgs.SID = "ERTUICSLAPIE";
+            //Console.WriteLine(String.Format("[!] -- Checking if {0}:{1} is a working TNS listener...", cArgs.ServerIP, cArgs.Port));
+            GenerateConnectionString("ERTUICS", "PASSWD");
+            var status = connectDB();
+
+            if (status.ToString().Contains("ORA-12505"))
+            {
+                workingTNS = true;
+            }
             else
             {
                 Console.WriteLine(status.ToString());

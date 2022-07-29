@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,6 +8,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using IpRanges;
 
 namespace wodat
 {
@@ -44,64 +46,70 @@ namespace wodat
 	        Use server and port of args only for testing.
             TODO: Cleanup the exception handling
         */
-        public bool checkListener(Arguments cArgs)
+        public void checkListener(Arguments cArgs)
         {
+			//Console.WriteLine(cArgs.ServerIP);	
             var statusWorking = false;
             Socket socket;
             IPAddress test1 = IPAddress.Parse(cArgs.ServerIP);
             IPEndPoint ipe = new IPEndPoint(test1, cArgs.Port);
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			socket.SendTimeout = 2;
+			var socketConn = false;
             try
             {
-                socket.Connect(ipe);
-            }
-            catch (ArgumentNullException ae)
+		
+				socket.Connect(ipe);
+
+
+			}
+            catch (Exception ex)
             {
-                //Console.WriteLine("[x] -- ERROR ArgumentNullException : {0}", ae.ToString());
-                throw;
-            }
-            catch (SocketException se)
-            {
-                //Console.WriteLine("[x] -- ERROR SocketException : {0}", se.ToString());
-                throw;
-            }
-            catch (Exception e)
-            {
-                //Console.WriteLine("[x] -- ERROR Unexpected exception : {0}", e.ToString());
-                throw;
-            }
-            socket.Close();
-            //Console.WriteLine("[!] -- Socket connection established to target");
-            OracleDatabase oDB = new OracleDatabase(cArgs);
-            statusWorking = oDB.isWorkingTNSList();
+				//Console.WriteLine("[x] -- ERROR Unexpected exception : {0}", e.ToString());
+				// throw;
+				
+			}          
+			if (socket.Connected)
+			{
+				OracleDatabase oDB = new OracleDatabase(cArgs);
+				statusWorking = oDB.reconWorkingTNSList();
 
-            if (statusWorking == false)
-            {        
-                return false;
+				if (statusWorking == false)
+				{
+					socket.Close();
+				
 
-            }
-            else
-				Console.ForegroundColor = ConsoleColor.Green;
-				string targ1 = cArgs.ServerIP + ":" + Convert.ToString(cArgs.Port);
-				Console.WriteLine("\t Found valid target: " + targ1);
-				validsList.Add(targ1);
-				Console.ResetColor();
-				return true;
-
-        }
+				}
+				else
+				{
+					Console.ForegroundColor = ConsoleColor.Green;
+					string targ1 = cArgs.ServerIP + ":" + Convert.ToString(cArgs.Port);
+					Console.WriteLine("\t Found valid target: " + targ1);
+					validsList.Add(targ1);
+					Console.ResetColor();
+					socket.Close();
+					
+				}
 
 
+
+			}
+            else { }
+		
+		}
+            
 		public void runReconTool()
         {
             if (targRecon.Contains("\\") && File.Exists(targRecon))
             {
 				loadFromFile();
 				Console.WriteLine("[!] -- Now attempting to discover valid TSN listeners against [" + comboList.Count() + "] targets loaded from file.");
-				foreach (string combo in comboList)
+				Parallel.ForEach(comboList, combo =>
 				{
+					//wrap in try catch for in case something is off with the target provided
 					try
 					{
-						//wrap in try catch for in case something is off with the target provided
+
 						if (combo.Contains(","))
 						{
 							cArgs.ServerIP = combo.Split(',')[0];
@@ -115,47 +123,54 @@ namespace wodat
 							cArgs.Port = 1521; //default port
 							checkListener(cArgs);
 						}
-						}
+					}
 					catch
 					{
-
+						//no need for errors just continue
 					}
-				}
+
+				});
+
 
 			}
-            else if ()
+            else
             {
-                IPAddress ip;
-                bool b = IPAddress.TryParse(targRecon,out ip);
+				try
+				{
+						IPRange range;
+						range = new IPRange(targRecon);
+					Parallel.ForEach(range.GetAllIP(), ipa => {
+						try
+						{
+							cArgs.ServerIP = ipa.ToString();
+							cArgs.Port = 1521; //default port
+							checkListener(cArgs);
+						}
+						catch (Exception ex) { Console.WriteLine(ex.ToString()); }
 
-            }
+					});
+
+
+				}
+				catch (Exception ex)
+				{
+					
+					Console.WriteLine("[x] -- Error encountered, please ensure IP range is provided correctly e.g. 192.168.1.0/24!");
+				}
+
+
+			}
 					
 
 					if (validsList.Count > 0)
 					{
-						Console.WriteLine("[!] -- Found [" + validsList.Count() + "] valid SIDs!");
+						Console.WriteLine("[!] -- Found [" + validsList.Count() + "] valid targets!");
 						validsList.ForEach(Console.WriteLine);
 			}
 					else
 					{
-						Console.WriteLine("[?] -- No valid SIDs found from provided list... Would you like to perform bruteforce attack \t (Y - Yes | N - No)?");
-						Console.Write("> ");
-						String respBrute = Console.ReadLine().ToUpperInvariant();
-						if (respBrute == "Y")
-						{
-							Console.WriteLine("[!] -- Now attempting to bruteforce 1 char SID values. Please be patient, this can take a couple of minutes... CTRL + C to quit..");
-							bruteSIDs("", 0,1);
-							Console.WriteLine("[!] -- Now attempting to bruteforce 2 char SID values. Please be patient, this can take a couple of minutes... CTRL + C to quit..");
-							bruteSIDs("", 0,2);
-							Console.WriteLine("[!] -- Now attempting to bruteforce 3 char SID values. Please be patient, this can take a couple of minutes... CTRL + C to quit..");
-							bruteSIDs("", 0,3);
-							Console.WriteLine("[!] -- Now attempting to bruteforce 4 char SID values. Please be patient, this can take a couple of minutes... CTRL + C to quit..");
-							bruteSIDs("", 0, 4);	
-				}
-						else
-							{
-
-							}
+					
+						Console.ReadLine();
 
 			}
 		}
