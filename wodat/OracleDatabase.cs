@@ -65,12 +65,12 @@ namespace wodat
             If username is not given, it is taken from args
             If password is not given, it is taken from args
                DOES NOT PRINT ANYTHING
-            Return Connection string according to args and parameters(user, password)
+            Return Connection string according to args and parameters(user, password) //
         */
         public void GenerateConnectionString()
         {
             string ouser = cArgs.Username;
-            string opass = cArgs.Password; 
+            string opass = cArgs.Password;
             string oconString = "";
 
             if (cArgs.ServiceName != null)
