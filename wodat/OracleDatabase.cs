@@ -69,8 +69,8 @@ namespace wodat
         */
         public void GenerateConnectionString()
         {
-            string ouser = cArgs.Username; ;
-            string opass = cArgs.Password; ;
+            string ouser = cArgs.Username;
+            string opass = cArgs.Password; 
             string oconString = "";
 
             if (cArgs.ServiceName != null)
@@ -199,7 +199,9 @@ namespace wodat
             var lastSID = cArgs.SID;
             cArgs.SID = "ERTUICSLAPIE";
             //Console.WriteLine(String.Format("[!] -- Checking if {0}:{1} is a working TNS listener...", cArgs.ServerIP, cArgs.Port));
-            GenerateConnectionString("ERTUICS", "PASSWD");
+            cArgs.Username = "ERTUICS";
+            cArgs.Password = "PASSWD";
+            GenerateConnectionString();
             var status = connectDB();
 
             if (status.ToString().Contains("ORA-12505"))
