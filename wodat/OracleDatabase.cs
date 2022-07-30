@@ -6,7 +6,7 @@ namespace wodat
 {
     public class OracleDatabase
     {
-        public string[] ERROR_RETURN_LIST = { "12505", "12537", "End of file", "01017" };
+        public string[] ERROR_RETURN_LIST = { "12505", "12537", "End of file", "01017","12533" };
         public string[] TARGET_UNAVAILABLE = { "target host or object does not exist", "handler with matching protocol stack" };
         public string[] SYSDBA_CREDS = { "28009", "SYSDBA or SYSOPER" };
         public Arguments cArgs;
@@ -65,12 +65,12 @@ namespace wodat
             If username is not given, it is taken from args
             If password is not given, it is taken from args
                DOES NOT PRINT ANYTHING
-            Return Connection string according to args and parameters(user, password)
+            Return Connection string according to args and parameters(user, password) //
         */
         public void GenerateConnectionString()
         {
-            string ouser = cArgs.Username; ;
-            string opass = cArgs.Password; ;
+            string ouser = cArgs.Username;
+            string opass = cArgs.Password;
             string oconString = "";
 
             if (cArgs.ServiceName != null)
@@ -162,6 +162,7 @@ namespace wodat
            Sends a connection with an invalid login, password and SID. If TNS listener is working, the TNS listener
            should returns an error with the SID. Ib this case, the TNS listener is working. Otherwise, TNS does not work well.
         */
+        
 
         public bool isWorkingTNSList()
         {
@@ -178,6 +179,35 @@ namespace wodat
                 {
                     workingTNS = true;
                 }
+            else
+            {
+                Console.WriteLine(status.ToString());
+            }
+
+            cArgs.SID = lastSID;
+            cArgs.ServiceName = lastServiceName;
+
+            return workingTNS;
+
+        }
+
+        public bool reconWorkingTNSList()
+        {
+            bool workingTNS = false;
+            var lastServiceName = cArgs.ServiceName;
+            cArgs.ServiceName = null;
+            var lastSID = cArgs.SID;
+            cArgs.SID = "ERTUICSLAPIE";
+            //Console.WriteLine(String.Format("[!] -- Checking if {0}:{1} is a working TNS listener...", cArgs.ServerIP, cArgs.Port));
+            cArgs.Username = "ERTUICS";
+            cArgs.Password = "PASSWD";
+            GenerateConnectionString();
+            var status = connectDB();
+
+            if (status.ToString().Contains("ORA-12505"))
+            {
+                workingTNS = true;
+            }
             else
             {
                 Console.WriteLine(status.ToString());

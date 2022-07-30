@@ -14,6 +14,7 @@ namespace wodat
 
         public string Username { get => username; set => username = value; }
         public string Password { get => password; set => password = value; }
+        public string recTarget { get => recTarget; set => recTarget = value; }
         public string ServiceName { get => serviceName; set => serviceName = value; }
         public string SID { get => sID; set => sID = value; }
         public string ServerIP { get => serverIP; set => serverIP = value; }
@@ -27,7 +28,7 @@ namespace wodat
             this.Username = username;
             this.password = password;
             this.ServiceName = serviceName;
-            SID = sID;
+            this.sID = SID;
             this.ServerIP = serverIP;
             this.Port = port;
             this.ConString = connString;

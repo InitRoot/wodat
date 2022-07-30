@@ -13,7 +13,7 @@ namespace wodat
 		public String fileName;
 		public string[] comboList;
 		public List<string> validsList = new List<string>();
-		public  string[] NO_GOOD_SID_STRING_LIST = { "listener does not currently know of service requested", "listener does not currently know of sid", "connection to server failed", "destination host unreachable" };
+		public  string[] NO_GOOD_SID_STRING_LIST = { "transport address syntax","listener does not currently know of service requested", "listener does not currently know of sid", "connection to server failed", "destination host unreachable" };
 
 
 		public sidGuesser(Arguments nArgs, String fileName)
