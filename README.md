@@ -85,7 +85,7 @@ Instances to test must be formatted as per the below example `targets.txt`:
 192.168.10.5,1521
 
 ```
-![image](https://user-images.githubusercontent.com/954507/181904451-03921a72-5718-41b3-b23d-d78e68340f1d.png)
+
 
 ### ALL
 Not implemented yet.
