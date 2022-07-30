@@ -5,12 +5,13 @@ Windows Oracle Database Attack Tool
 ![GitHub last commit](https://img.shields.io/github/last-commit/initroot/wodat)
 
  
-Simple port of the popular  Oracle Database Attack Tool (ODAT) (https://github.com/quentinhardy/odat) to C# .Net Framework. 
+Simple port of the popular Oracle Database Attack Tool (ODAT) (https://github.com/quentinhardy/odat) to C# .Net Framework. 
 Credit to https://github.com/quentinhardy/odat as lots of the functionality are ported from his code.
 * Perform password based attacks e.g. username as password, username list against given password, password list against given username, username:pass combolist.
 * Test if a credential/connection string is working against target
 * Brute force attacks to discover valid SID/ServiceNames
-* More to come I hope!
+* Perform discovery of valid TNS listeners against provided target file or CIDR range
+* More to come, I hope!
 
 ![image](https://user-images.githubusercontent.com/954507/180816033-31dbc5d5-0012-401a-9748-48df230b0fdf.png)
 
@@ -22,7 +23,7 @@ The general command line arguments required are as follow:
 
 ```
 wodat.exe COMMAND ARGGUMENTS
- COMMAND (ALL,BRUTECRED,BRUTESID,BRUTESRV,TEST)
+ COMMAND (ALL,BRUTECRED,BRUTESID,BRUTESRV,TEST,DISC)
  -server:XXX.XXX.XXX.XXX -port:1520
  -sid:AS OR -srv:AS
  -user:Peter -pass:Password
@@ -37,14 +38,14 @@ See the outline on modules for further usage. The tool will always first check i
 
 ## Modules
 #### BRUTESID
-Module performs wordlist SID guessing attack if not successfull will ask for brute force attack.
+Module performs wordlist SID guessing attack if not successful will ask for brute force attack.
 ```
 wodat.exe BRUTESID -server:XXX.XXX.XXX.XXX -port:1521
 ```
 ![image](https://user-images.githubusercontent.com/954507/180816431-7bb82722-55cf-4233-9cca-8e809ebf5f4a.png)
 
 #### BRUTESRV
-Module performs wordlist ServiceName guessing attack if not successfull will ask for brute force attack.
+Module performs wordlist ServiceName guessing attack if not successful will ask for brute force attack.
 ```
 wodat.exe BRUTESRV -server:XXX.XXX.XXX.XXX -port:1521
 ```
@@ -70,6 +71,22 @@ wodat.exe TEST -server:XXX.XXX.XXX.XXX -port:1521 -sid:XE -user:peter -pass:pan
 ```
 ![image](https://user-images.githubusercontent.com/954507/180830998-112671d7-d747-43ba-90e9-01c615ca5248.png)
 
+#### DISC
+Module will perform discovery against provided CIDR range or file with instances. Note, only instances with valid TNS listeners will be returned.
+Testing a network range will be much faster as it’s processed in parallel. 
+```
+wodat.exe DISC
+
+```
+Instances to test must be formatted as per the below example `targets.txt`:
+
+```
+192.168.10.1
+192.168.10.5,1521
+
+```
+![image](https://user-images.githubusercontent.com/954507/181904451-03921a72-5718-41b3-b23d-d78e68340f1d.png)
+
 ### ALL
 Not implemented yet.
 
@@ -78,7 +95,7 @@ Not implemented yet.
 
 
 ## Setup and Requirements
-You can grab automated release build from the Github Actions or build yourself using the following commands:
+You can grab automated release build from the GitHub Actions or build yourself using the following commands:
 
 ```
 nuget restore wodat.sln
@@ -97,3 +114,4 @@ The `Oracle.ManagedDataAccess.dll` library will have to be copied with the binar
  
 ## Changelog
 Version 0.1 - Base toolkit and functionality
+Version 0.2 - Several bugfixes, improved socket connection and added RECON module
