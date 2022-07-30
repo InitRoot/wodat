@@ -14,43 +14,39 @@ namespace wodat
 {
     public class reconTool
     {
-        public Arguments cArgs;
+
 		public String targRecon;
-		public string[] comboList;
+		public IEnumerable<string> comboList;
 		int tested = 0;
 		public List<string> validsList = new List<string>();
 
 
-		public reconTool(Arguments nArgs, String targRecon)
+		public reconTool(String targRecon)
 		{
-			this.cArgs = nArgs;
 			this.targRecon = targRecon;
 		}
 
-		//Returns valid list of SIDS.
+		//Returns valid list of targets.
 		public List<string> validTargets()
 		{
-			return validsList;
+			return validsList.Distinct().ToList();
 		}
+
 
 		/*
-		Load data from file.
-		Impossible to have duplicate data.
-		*/
-		public void loadFromFile()
-		{
-			comboList = (System.IO.File.ReadAllLines(targRecon)).Distinct().ToArray();
-		}
-
-        /*
         	Returns True if it is a working TNS listener. Otherwise False
 	        Use server and port of args only for testing.
             TODO: Cleanup the exception handling
         */
-        public void checkListener(Arguments cArgs)
+		public void checkListener(Arguments cArgs)
         {
 			tested = tested + 1;
-			//Console.WriteLine(cArgs.ServerIP);	
+			//Console.WriteLine("Testing manually: " + cArgs.ServerIP);	
+			if (cArgs.Port == 0)
+            {
+				cArgs.Port = 1521;
+
+			}
             var statusWorking = false;
             Socket socket;
             IPAddress test1 = IPAddress.Parse(cArgs.ServerIP);
@@ -80,7 +76,6 @@ namespace wodat
 				{
 					socket.Close();
 				
-
 				}
 				else
 				{
@@ -105,16 +100,20 @@ namespace wodat
         {
             if (targRecon.Contains("\\") && File.Exists(targRecon))
             {
-				loadFromFile();
-				Console.WriteLine("[!] -- Now attempting to discover valid TSN listeners against [" + comboList.Count() + "] targets loaded from file.");
-				Parallel.ForEach(comboList, combo =>
+				IEnumerable<string> comboList = File.ReadAllLines(targRecon);
+				//Console.WriteLine(comboList);
+				Console.WriteLine("[!] -- Now attempting to discover valid TNS listeners against [" + comboList.Count() + "] targets loaded from file.");
+				foreach (string combo in comboList)
 				{
+					combo.Replace(" ", String.Empty);
+					Console.WriteLine(combo);
 					//wrap in try catch for in case something is off with the target provided
 					try
 					{
 
 						if (combo.Contains(","))
 						{
+							Arguments cArgs = new Arguments();
 							cArgs.ServerIP = combo.Split(',')[0];
 							cArgs.Port = Convert.ToInt32(combo.Split(',')[1]);
 							checkListener(cArgs);
@@ -122,6 +121,7 @@ namespace wodat
 						}
 						else
 						{
+							Arguments cArgs = new Arguments();
 							cArgs.ServerIP = combo.Split(',')[0];
 							cArgs.Port = 1521; //default port
 							checkListener(cArgs);
@@ -132,7 +132,7 @@ namespace wodat
 						//no need for errors just continue
 					}
 
-				});
+				}
 
 
 			}
@@ -141,12 +141,15 @@ namespace wodat
 
 				try
 				{
-						IPRange range;
-						range = new IPRange(targRecon);
-					Console.WriteLine("[!] -- Now attempting to discover valid TSN listeners against [" + range.GetAllIP().Count() + "] targets.");
+					IPRange range;
+					range = new IPRange(targRecon);
+					Console.WriteLine("[!] -- Now attempting to discover valid TNS listeners against [" + range.GetAllIP().Count() + "] targets.");
+
+					//Parallel.ForEach(range.GetAllIP(), new ParallelOptions { MaxDegreeOfParallelism = 8 }, ipa =>
 					Parallel.ForEach(range.GetAllIP(), ipa => {
-						try
-						{
+					try
+					{
+							Arguments cArgs = new Arguments();
 							cArgs.ServerIP = ipa.ToString();
 							cArgs.Port = 1521; //default port
 							checkListener(cArgs);

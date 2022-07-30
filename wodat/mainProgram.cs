@@ -279,7 +279,7 @@ namespace wodat
                     targRecon = targRecon.Trim(new Char[] { '"', '*', (char)39 });
                     if (targRecon != null)
                     {
-                        reconTool rto = new reconTool(nArgs, targRecon);
+                        reconTool rto = new reconTool(targRecon);
                         rto.runReconTool();
                         Console.WriteLine("[!] -- DONE");
                     }
